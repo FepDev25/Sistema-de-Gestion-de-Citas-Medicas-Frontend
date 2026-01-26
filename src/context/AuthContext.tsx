@@ -1,31 +1,38 @@
-import { createContext, useState, type ReactNode } from 'react';
-import type { User, AuthContextType } from '../types/auth';
+import { createContext, useState, useMemo, type ReactNode } from 'react';
+import type { User, AuthContextType, DecodedToken } from '../types/auth';
+import { jwtDecode } from 'jwt-decode';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-  const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
 
-  const login = (newToken: string, newUser: User) => {
+  const user = useMemo<User | null>(() => {
+    if (!token) return null;
+    try {
+      const decoded: DecodedToken = jwtDecode(token);
+      return {
+        username: decoded.sub,
+        rol: decoded.role || decoded.authorities?.[0]?.authority || 'UNKNOWN'
+      };
+    } catch (error) {
+      console.error("Invalid token", error);
+      return null;
+    }
+  }, [token]);
+
+  const login = (newToken: string) => {
     localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(newUser));
     setToken(newToken);
-    setUser(newUser);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
     setToken(null);
-    setUser(null);
   };
 
-  const isAuthenticated = !!token;
+  const isAuthenticated = !!user;
 
   return (
     <AuthContext.Provider value={{ token, user, isAuthenticated, login, logout }}>
