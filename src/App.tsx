@@ -6,9 +6,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Navbar } from './components/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { MisCitas } from './pages/paciente/MisCitas';
-
-// Placeholder for patient routes (to be implemented)
-const AgendarCita = () => <div className="p-4">Agendar Cita - En desarrollo</div>;
+import { AgendarCita } from './pages/paciente/AgendarCita';
 
 // Placeholder for doctor routes
 const Agenda = () => <div className="p-4">Mi Agenda - En desarrollo</div>;
