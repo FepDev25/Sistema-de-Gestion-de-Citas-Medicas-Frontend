@@ -6,7 +6,8 @@ export interface User {
 export interface DecodedToken {
   sub: string;
   role?: string;
-  authorities?: { authority: string }[];
+  roles?: string[];
+  authorities?: { authority: string }[] | string[];
   exp: number;
   iat: number;
 }
