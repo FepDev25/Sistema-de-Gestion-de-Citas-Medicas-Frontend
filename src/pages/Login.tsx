@@ -29,6 +29,32 @@ export const Login = () => {
       const token = response.data.token;
       
       if (token) {
+        // Guardar token temporalmente
+        localStorage.setItem('token', token);
+        
+        // Detectar rol basándonos en si el usuario existe como médico o paciente
+        let detectedRole = 'UNKNOWN';
+        try {
+          // Intentar obtener como médico
+          const medicoResponse = await api.get(`/medicos/${credentials.username}`);
+          if (medicoResponse.data) {
+            detectedRole = 'MEDICO';
+          }
+        } catch {
+          // Si falla, intentar como paciente
+          try {
+            const pacienteResponse = await api.get(`/pacientes/${credentials.username}`);
+            if (pacienteResponse.data) {
+              detectedRole = 'PACIENTE';
+            }
+          } catch {
+            // Si ambos fallan, mantener UNKNOWN
+          }
+        }
+        
+        // Guardar el rol detectado
+        localStorage.setItem('userRole', detectedRole);
+        
         login(token);
         navigate('/dashboard');
       }
